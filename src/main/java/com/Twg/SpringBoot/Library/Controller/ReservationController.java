@@ -2,9 +2,10 @@ package com.Twg.SpringBoot.Library.Controller;
 
 import java.util.List;
 
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Twg.SpringBoot.Library.Entities.Reservation;
+import com.Twg.SpringBoot.Library.ExceptionHandler.ResourceNotFoundException;
 import com.Twg.SpringBoot.Library.Service.ReservationService;
 
 @RestController
@@ -40,21 +42,30 @@ public class ReservationController
 	}
 	
 	@PostMapping("/")
-	@PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<Reservation> ReserveBook(@RequestBody Reservation reservation)
     {
-		
-			return ResponseEntity.status(201).body(reservationService.saveReservation(reservation));
+		Reservation savedReservation=reservationService.saveReservation(reservation);
+	    if(savedReservation==null)
+	    {
+	    	throw new NullPointerException();
+	    }
+		return ResponseEntity.status(201).body(savedReservation);
 		
     }
 	@GetMapping("/{userid}")
-	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	public 	ResponseEntity<List<Reservation>> viewUserReservations(@PathVariable Integer userid)
 	{
-		return ResponseEntity.status(200).body(reservationService.getReservationsByUserId(userid));
+		List<Reservation> reservations=reservationService.getReservationsByUserId(userid);
+		if(reservations.isEmpty())
+		{
+			throw new ResourceNotFoundException("Reservations with userid"+userid+" is not found");
+		}
+		else
+		{
+			return ResponseEntity.status(200).body(reservations);
+		}
 	}
 	@GetMapping("/")
-	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<List<Reservation>> viewReservations()
 	{
 		return ResponseEntity.status(200).body(reservationService.getAllReservations());
@@ -70,7 +81,5 @@ public class ReservationController
 		updateReservation.setStatus(reservation.getStatus());
 		Reservation updatedReservation =reservationService.updateReservation(updateReservation);
 		return ResponseEntity.status(200).body(updatedReservation);
-		
-		
 	}
 }

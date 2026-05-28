@@ -1,12 +1,13 @@
 package com.Twg.SpringBoot.Library.Configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +21,10 @@ import com.Twg.SpringBoot.Library.JotModel.JwtFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+/* @EnableMethodSecurity 
+ * This allows the method level security.
+ * @EnableMethodSecurity is used when we are using @preAuthorize and @postAuthorize
+ * */
 public class SecurityConfiguration 
 {
 	@Autowired
@@ -43,7 +47,16 @@ public class SecurityConfiguration
     	.authorizeHttpRequests(
     			(auth)->
     			auth
-    			.requestMatchers("/auth/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
+    			.requestMatchers("/auth/**","/swagger-ui/**","/v3/api-docs/**","/swagger-ui.html").permitAll()
+    			.requestMatchers(HttpMethod.GET, "/books/").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
+    			.requestMatchers(HttpMethod.GET, "/books/{id}").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
+    			.requestMatchers(HttpMethod.POST,"/books/").hasAuthority("ROLE_ADMIN")
+    			.requestMatchers(HttpMethod.PUT,"/books/**").hasAuthority("ROLE_ADMIN")
+    			.requestMatchers(HttpMethod.DELETE,"/books/{id}").hasAuthority("ROLE_ADMIN")
+    			.requestMatchers(HttpMethod.POST,"/reservations/").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
+    			.requestMatchers(HttpMethod.GET, "/reservations/{userid}").hasAnyAuthority("ROLE_ADMIN","ROLE_USER")
+    			.requestMatchers(HttpMethod.GET, "/reservations/").hasAuthority("ROLE_ADMIN")
+    			.requestMatchers(HttpMethod.PUT,"/reservations/**").hasAuthority("ROLE_ADMIN")
     			.anyRequest()
     			.authenticated()
     			).addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class)

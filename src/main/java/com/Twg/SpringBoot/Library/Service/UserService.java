@@ -2,6 +2,7 @@ package com.Twg.SpringBoot.Library.Service;
 
 import java.util.List;
 
+
 import com.Twg.SpringBoot.Library.Entities.User;
 
 public interface UserService 
@@ -13,5 +14,4 @@ public interface UserService
     public User findByUsername(String username);
 	public List<User> findAll();
 	public void deleteUserById(Integer id);
-
 }

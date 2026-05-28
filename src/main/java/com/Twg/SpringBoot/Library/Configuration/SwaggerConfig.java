@@ -20,7 +20,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("Library Booking System")
                         .description("API documentation for the Library Booking System")
-                        .version("1.0")
+                        .version("1..0")
                         .contact(new Contact()
                                 .name("Sainath")
                                 .email("nathsai6309441654@gmail.com")

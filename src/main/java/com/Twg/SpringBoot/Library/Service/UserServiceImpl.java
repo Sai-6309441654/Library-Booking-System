@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.Twg.SpringBoot.Library.Entities.User;
+import com.Twg.SpringBoot.Library.ExceptionHandler.ResourceNotFoundException;
 import com.Twg.SpringBoot.Library.Repository.UserRepository;
 @Service
 public class UserServiceImpl implements UserService,UserDetailsService
@@ -54,13 +55,13 @@ public class UserServiceImpl implements UserService,UserDetailsService
 		@Override
 		public User findById(Integer id) 
 		{
-			return userRepository.findById(id).get();
+			return userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("user with id:"+id+" is not found"));
 		}
 		//finding the user by using username
 		@Override
 		public User findByUsername(String username) 
 		{
-			return userRepository.findByUsernameAndIsActive(username,true).orElseThrow(()->  new UsernameNotFoundException("User is not Found"));
+			return userRepository.findByUsernameAndIsActive(username,true).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 		}
 	    //finding all users
 		@Override

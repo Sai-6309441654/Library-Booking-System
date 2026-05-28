@@ -2,9 +2,11 @@ package com.Twg.SpringBoot.Library.Controller;
 
 import java.util.List;
 
+
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,30 +43,33 @@ public class BookController
 	
 	//Get All Books
 	@GetMapping("/")
-	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	public ResponseEntity<List<Book>> GetAllBooks()
 	{
 		return ResponseEntity.status(200).body(bookService.findAll());
 	}
 	//Get Specific Book By Id
 	@GetMapping("/{id}")
-	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	public ResponseEntity<Book> GetBookById(@PathVariable Integer id)
 	{
-		return ResponseEntity.status(200).body(bookService.findById(id));
+		Book book=bookService.findById(id);
+		return ResponseEntity.status(200).body(book);
 	}
 	@GetMapping("/booktitle/{title}")
-	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	public ResponseEntity<List<Book>> GetBookByTitle(@PathVariable String title)
 	{
-		return ResponseEntity.status(200).body(bookService.FindBookByTitle(title));
+		List<Book> books=bookService.FindBookByTitle(title);
+		return ResponseEntity.status(200).body(books);
 	}
 	//Add a new Book
     @PostMapping("/")
-    @PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Book> saveBook(@RequestBody Book book)
     {
-    	return ResponseEntity.status(201).body(bookService.save(book));
+    	Book storebook=bookService.save(book);
+    	if(storebook==null)
+    	{
+    		throw new NullPointerException();
+    	}
+    	return ResponseEntity.status(201).body(storebook);
 	}
 	//It is used to update the inserted book with the id that is written inside a body
 	@PutMapping("/")
@@ -75,7 +80,6 @@ public class BookController
     }
 	//Update Book By  id
 	@PutMapping("/{id}")
-	@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Book> updateBookById(@PathVariable Integer id,@RequestBody Book book)
     {
     	Book foundbook=bookService.findById(id);
@@ -88,11 +92,10 @@ public class BookController
     }
 	//Delete Book By id
 	@DeleteMapping("/{id}")
-	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<String> deleteBookById(@PathVariable Integer id)
 	{
 		Book book=bookService.findById(id);
 		bookService.deleteBookById(id);
-		return ResponseEntity.status(204).body(book.getTitle()+"is deleted");
+		return ResponseEntity.status(200).body(book.getTitle()+"is deleted");
 	}
 }

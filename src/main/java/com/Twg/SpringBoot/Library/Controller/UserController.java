@@ -3,6 +3,7 @@ package com.Twg.SpringBoot.Library.Controller;
 import java.util.List;
 
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +62,11 @@ public class UserController
 		saveuser.setPassword(passwordEncoder.encode(user.getPassword()));
 		saveuser.setActive(user.isActive());
 		saveuser.setRole(user.getRole());
-		userService.saveUser(saveuser);
+		User savedUser=userService.saveUser(saveuser);
+		if(savedUser==null)
+		{
+			throw new NullPointerException();
+		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(saveuser);
 	}
 	@PostMapping("/login")
@@ -76,7 +81,8 @@ public class UserController
 			.next()
 			.getAuthority()
 			.replace("ROLE_","");//prefix "ROLE_" has to be added when configuring roles in spring security,but don't add it when passing it to JWT
-			String token=jotService.generateJwt(jotUser.getUsername(), role);
+			String username=jotUser.getUsername();
+			String token=jotService.generateJwt(username, role);
 			return token;
 		}
 		return null;
@@ -90,9 +96,9 @@ public class UserController
     }
 	//view user by username
 	@GetMapping("/username/{username}")
-    public ResponseEntity<User> GetUser(@PathVariable String name)
+    public ResponseEntity<User> GetUser(@PathVariable String username)
     {
-		User user=userService.findByUsername(name);
+		User user=userService.findByUsername(username);
     	return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 	//view all users

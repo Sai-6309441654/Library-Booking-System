@@ -2,9 +2,11 @@ package com.Twg.SpringBoot.Library.Service;
 
 import java.util.List;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.Twg.SpringBoot.Library.Entities.Reservation;
+import com.Twg.SpringBoot.Library.ExceptionHandler.ResourceNotFoundException;
 import com.Twg.SpringBoot.Library.Repository.ReservationRepository;
 @Service
 public class ReservationServiceImpl implements ReservationService
@@ -38,21 +40,33 @@ public class ReservationServiceImpl implements ReservationService
 	@Override
 	public List<Reservation> getReservationsByUserId(Integer userid) 
 	{
-		return reservationRepository.findByUserid(userid);
+		List<Reservation> reservations=reservationRepository.findByUserid(userid);
+		if(reservations.isEmpty())
+		{
+			throw new ResourceNotFoundException("Reservations not found with userid:"+userid);
+		}
+		return reservations;
 	}
 	@Override
 	public List<Reservation> getAllReservations() 
 	{
-		return reservationRepository.findAll();
+		List<Reservation> reservations=reservationRepository.findAll();
+		if(reservations.isEmpty())
+		{
+			throw new ResourceNotFoundException("Reservations are not listed");
+		}
+		return reservations;
 	}
 	@Override
 	public Reservation getReservationById(Integer id) {
 		
-		return reservationRepository.findById(id).get();
+		return reservationRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Reservation not found with id:"+id));
 	}
 	@Override
 	public Reservation  updateReservation(Reservation reservation)
 	{
-		return reservationRepository.save(reservation);
+		Reservation updatedreservation=reservationRepository.save(reservation);
+		return updatedreservation;
+		
 	}
 }
