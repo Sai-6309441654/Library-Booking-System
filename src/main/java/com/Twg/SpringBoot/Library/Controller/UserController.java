@@ -130,6 +130,6 @@ public class UserController
     public ResponseEntity<String> jwtval(@RequestParam String Token)
     {
     	Claims claims=jotService.verifySignatureAndExtractAllClaims(Token);
-    	return  ResponseEntity.status(HttpStatus.ACCEPTED).body(claims.get(Token,String.class));
+    	return  ResponseEntity.status(HttpStatus.ACCEPTED).body(claims.getSubject());
     }
 }
